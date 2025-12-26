@@ -1,0 +1,6 @@
+streamlit
+st-pages
+numpy
+Pillow
+opencv-python-headless
+reportlab
