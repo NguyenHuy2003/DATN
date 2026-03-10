@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Ray Sentinel AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="hud-header">X-RAY SENTINEL</div>
+    
+    <div class="container">
+        <div class="upload-section glass-panel">
+            <h2>KÍCH HOẠT HỆ THỐNG QUÉT</h2>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="color: #00f2ff; font-family: 'Orbitron'; margin-right: 10px;">CHỌN MÔ HÌNH:</label>
+                <select id="modelSelect" class="cyber-select">
+                    <option value="general">Mô hình Tổng hợp (Multi-task DenseNet169)</option>
+                    <option value="shoulder">Mô hình Chuyên biệt Xương Vai (Shoulder Model)</option>
+                </select>
+            </div>
+
+            <input type="file" id="imageInput" accept="image/png, image/jpeg" class="file-input" multiple>
+            <button id="scanBtn" class="cyber-btn">🚀 BẮT ĐẦU QUÉT HÀNG LOẠT</button>
+            
+            <div id="loading" class="hidden" style="margin-top: 15px; color: #ff7f0e;">
+                Đang phân tích: <span id="progressText">0/0</span> ảnh...
+            </div>
+        </div>
+
+        <div id="summaryAction" class="hidden" style="text-align: right; margin-bottom: 20px;">
+            <button id="downloadSummaryBtn" class="cyber-btn" style="background: #10b981; color: white; border-color: #10b981;">
+                📥 TẢI BÁO CÁO TỔNG HỢP (.PDF)
+            </button>
+        </div>
+
+        <div id="resultsContainer"></div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
