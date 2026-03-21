@@ -1,72 +1,84 @@
-let globalResults = []; // Lưu trữ toàn bộ kết quả để in PDF tổng hợp
+// xử lý khi người dùng chọn ảnh
+document.getElementById('imageinput').addEventListener('change', function(e) {
+    const files = e.target.files;
+    const scanbtn = document.getElementById('scanbtn');
+    const filelist = document.getElementById('filelist');
+    
+    if (files.length > 0) {
+        scanbtn.classList.remove('hidden');
+        filelist.classList.remove('hidden');
+        filelist.innerHTML = `Đã chọn ${files.length} ảnh. Hệ thống sẵn sàng phân tích.`;
+    } else {
+        scanbtn.classList.add('hidden');
+        filelist.classList.add('hidden');
+    }
+});
 
-document.getElementById('scanBtn').addEventListener('click', async () => {
-    const fileInput = document.getElementById('imageInput');
-    const modelSelect = document.getElementById('modelSelect').value;
-    const files = fileInput.files;
+let globalresults = []; // mảng lưu kết quả
+
+document.getElementById('scanbtn').addEventListener('click', async () => {
+    const fileinput = document.getElementById('imageinput');
+    const modelselect = document.getElementById('modelselect').value;
+    const files = fileinput.files;
 
     if (files.length === 0) {
-        alert("Vui lòng chọn ít nhất 1 ảnh X-Quang!");
+        alert("Vui lòng chọn ít nhất 1 ảnh x-quang");
         return;
     }
 
-    // Reset giao diện
-    const container = document.getElementById('resultsContainer');
+    const container = document.getElementById('resultscontainer');
     container.innerHTML = "";
-    globalResults = [];
-    document.getElementById('summaryAction').classList.add('hidden');
+    globalresults = [];
+    document.getElementById('summaryaction').classList.add('hidden');
     
-    const loadingDiv = document.getElementById('loading');
-    const progressText = document.getElementById('progressText');
-    loadingDiv.classList.remove('hidden');
+    const loadingdiv = document.getElementById('loading');
+    const progresstext = document.getElementById('progresstext');
+    loadingdiv.classList.remove('hidden');
 
-    // Lặp qua từng file để xử lý
     for (let i = 0; i < files.length; i++) {
-        progressText.innerText = `${i + 1}/${files.length}`;
+        progresstext.innerText = `${i + 1}/${files.length}`;
         const file = files[i];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("model_type", modelSelect); // Gửi loại model xuống backend
+        const formdata = new FormData();
+        formdata.append("file", file);
+        formdata.append("model_type", modelselect);
 
         try {
-            const response = await fetch('/predict', { method: 'POST', body: formData });
+            const response = await fetch('/predict', { method: 'POST', body: formdata });
             const data = await response.json();
             
-            // Lưu kết quả vào mảng toàn cục
             data.filename = file.name;
-            globalResults.push(data);
+            globalresults.push(data);
 
-            // Tạo khung HTML (Card) cho từng ảnh
-            const cardHTML = `
-            <div class="result-section glass-panel">
+            const cardhtml = `
+            <div class="glass-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px;">
-                    <span style="color:#00f2ff; font-family:'Orbitron'">ID: ${file.name}</span>
+                    <span style="color:#00f2ff; font-weight:600;">ID: ${file.name}</span>
                     <span class="body-part-tag">${data.body_part}</span>
                 </div>
                 
                 <div class="result-grid">
                     <div class="img-col">
-                        <p>Ảnh gốc</p>
+                        <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:8px;">Ảnh gốc</p>
                         <div class="scan-container">
-                            <img src="data:image/png;base64,${data.original_b64}" style="max-width: 100%; border-radius: 8px;">
+                            <img src="data:image/png;base64,${data.original_b64}">
+                            <div class="scan-line"></div>
                         </div>
                     </div>
                     <div class="img-col">
-                        <p>Kết quả AI</p>
-                        <img src="data:image/png;base64,${data.result_b64}" style="max-width: 100%; border-radius: 8px;">
+                        <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:8px;">Kết quả phân tích</p>
+                        <img src="data:image/png;base64,${data.result_b64}">
                     </div>
                     <div class="info-col">
-                        <div class="${data.css_class}" style="padding: 15px;">
-                            <h3>${data.label}</h3>
-                            <p>ĐỘ TIN CẬY: ${(data.confidence * 100).toFixed(2)}%</p>
+                        <div class="${data.css_class}">
+                            <h3 style="margin:0 0 10px 0;">${data.label}</h3>
+                            <p style="margin:0;">Độ tin cậy: ${(data.confidence * 100).toFixed(2)}%</p>
                         </div>
-                        <button class="cyber-btn" style="margin-top: 15px;" onclick='downloadPDF(${JSON.stringify(data)})'>📄 Tải báo cáo lẻ</button>
+                        <button class="cyber-btn" style="margin-top: 15px;" onclick='downloadpdf(${JSON.stringify(data)})'>Tải báo cáo chi tiết</button>
                     </div>
                 </div>
             </div>`;
             
-            // Gắn vào giao diện
-            container.insertAdjacentHTML('beforeend', cardHTML);
+            container.insertAdjacentHTML('beforeend', cardhtml);
 
         } catch (error) {
             console.error("Lỗi khi quét file: ", file.name, error);
@@ -74,30 +86,26 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         }
     }
 
-    loadingDiv.classList.add('hidden');
-    // Hiện nút tải báo cáo tổng hợp
-    if (globalResults.length > 0) {
-        document.getElementById('summaryAction').classList.remove('hidden');
+    loadingdiv.classList.add('hidden');
+    if (globalresults.length > 0) {
+        document.getElementById('summaryaction').classList.remove('hidden');
     }
 });
 
-// Hàm gọi API tạo PDF lẻ
-async function downloadPDF(data) {
-    requestPDF([data], `Report_${data.filename}.pdf`);
+async function downloadpdf(data) {
+    requestpdf([data], `Bao_cao_${data.filename}.pdf`);
 }
 
-// Hàm gọi API tạo PDF tổng hợp
-document.getElementById('downloadSummaryBtn').addEventListener('click', () => {
-    requestPDF(globalResults, `Tong_hop_XQuang.pdf`);
+document.getElementById('downloadsummarybtn').addEventListener('click', () => {
+    requestpdf(globalresults, `Tong_hop_xquang.pdf`);
 });
 
-// Logic gửi request in PDF
-async function requestPDF(resultsArray, outFilename) {
+async function requestpdf(resultsarray, outfilename) {
     try {
         const response = await fetch('/generate_pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(resultsArray)
+            body: JSON.stringify(resultsarray)
         });
         
         const blob = await response.blob();
@@ -105,11 +113,11 @@ async function requestPDF(resultsArray, outFilename) {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = outFilename;
+        a.download = outfilename;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
     } catch (error) {
-        alert("Lỗi khi tạo file PDF!");
+        alert("Lỗi khi tạo file pdf");
     }
 }

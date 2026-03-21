@@ -3,41 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Ray Sentinel AI</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>AI Chẩn đoán bất thường - X-Quang xương chi trên</title>
+    <link rel="stylesheet" href="/static/style.css?v=6">
 </head>
 <body>
-    <div class="hud-header">X-RAY SENTINEL</div>
+    <div class="hud-header">AI CHẨN ĐOÁN BẤT THƯỜNG - X-QUANG XƯƠNG CHI TRÊN</div>
     
-    <div class="container">
-        <div class="upload-section glass-panel">
-            <h2>KÍCH HOẠT HỆ THỐNG QUÉT</h2>
+    <div class="container layout-grid">
+        <div class="left-col">
+            <span class="section-title">TẢI ẢNH X-QUANG</span>
             
-            <div style="margin-bottom: 15px;">
-                <label style="color: #00f2ff; font-family: 'Orbitron'; margin-right: 10px;">CHỌN MÔ HÌNH:</label>
-                <select id="modelSelect" class="cyber-select">
-                    <option value="general">Mô hình Tổng hợp (Multi-task DenseNet169)</option>
-                    <option value="shoulder">Mô hình Chuyên biệt Xương Vai (Shoulder Model)</option>
-                </select>
+            <div class="st-file-uploader" onclick="document.getElementById('imageinput').click()">
+                <div class="upload-content">
+                    <div class="upload-text">
+                        <div class="drag-text">Kéo thả file vào đây</div>
+                        <div class="limit-text">Giới hạn 200MB mỗi file - JPG, PNG, JPEG</div>
+                    </div>
+                </div>
+                <button class="browse-btn">Chọn file</button>
+                <input type="file" id="imageinput" accept="image/png, image/jpeg" multiple style="display: none;">
             </div>
 
-            <input type="file" id="imageInput" accept="image/png, image/jpeg" class="file-input" multiple>
-            <button id="scanBtn" class="cyber-btn">🚀 BẮT ĐẦU QUÉT HÀNG LOẠT</button>
+            <div id="filelist" class="file-list hidden"></div>
             
+            <button id="scanbtn" class="cyber-btn hidden" style="margin-top: 15px;">BẮT ĐẦU PHÂN TÍCH AI</button>
             <div id="loading" class="hidden" style="margin-top: 15px; color: #ff7f0e;">
-                Đang phân tích: <span id="progressText">0/0</span> ảnh...
+                Đang phân tích: <span id="progresstext">0/0</span> ảnh.
             </div>
         </div>
 
-        <div id="summaryAction" class="hidden" style="text-align: right; margin-bottom: 20px;">
-            <button id="downloadSummaryBtn" class="cyber-btn" style="background: #10b981; color: white; border-color: #10b981;">
-                📥 TẢI BÁO CÁO TỔNG HỢP (.PDF)
-            </button>
+        <div class="right-col">
+            <div class="st-expander">
+                <div class="expander-header">
+                    CẤU HÌNH HỆ THỐNG
+                </div>
+                <div class="expander-content">
+                    <label class="config-label">MÔ HÌNH</label>
+                    <select id="modelselect" class="st-select">
+                        <option value="general">Mô hình đa nhiệm</option>
+                        <option value="shoulder">Mô hình xương vai chuyên biệt</option>
+                    </select>
+                </div>
+            </div>
         </div>
-
-        <div id="resultsContainer"></div>
     </div>
 
-    <script src="/static/script.js"></script>
+    <div class="container">
+        <div id="summaryaction" class="hidden" style="text-align: right; margin-bottom: 20px; margin-top: 20px;">
+            <button id="downloadsummarybtn" class="cyber-btn" style="background: #10b981; color: white; border-color: #10b981; width: auto;">
+                TẢI BÁO CÁO TỔNG HỢP (.PDF)
+            </button>
+        </div>
+        <div id="resultscontainer"></div>
+    </div>
+
+    <script src="/static/script.js?v=6"></script>
 </body>
 </html>
