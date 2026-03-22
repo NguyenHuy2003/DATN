@@ -1,4 +1,52 @@
-// xử lý khi người dùng chọn ảnh
+// Chức năng: Xử lý giao diện kéo thả ảnh, gửi ảnh lên Flask API, hiển thị kết quả và xuất PDF
+const dropZone = document.getElementById('dropzone');
+const imageInput = document.getElementById('imageinput');
+
+if (dropZone && imageInput) {
+    // Ngăn trình duyệt mở ảnh sang tab mới
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Hiệu ứng chớp sáng khi kéo ảnh lơ lửng trên khung
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.style.border = '2px dashed #00f2ff';
+            dropZone.style.backgroundColor = 'rgba(0, 242, 255, 0.05)';
+        }, false);
+    });
+
+    // Xóa hiệu ứng khi kéo ra ngoài hoặc nhả chuột
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.style.border = '';
+            dropZone.style.backgroundColor = '';
+        }, false);
+    });
+
+    // Bắt lấy file khi người dùng THẢ ẢNH VÀO
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            // Ép file vào thẻ input ẩn
+            imageInput.files = files;
+
+            // Tự động kích hoạt sự kiện 'change' để hiện nút Scan
+            const event = new Event('change');
+            imageInput.dispatchEvent(event);
+        }
+    });
+}
+
+// Xử lý khi người dùng CHỌN ẢNH BẰNG CÁCH NHẤP VÀO KHUNG
 document.getElementById('imageinput').addEventListener('change', function(e) {
     const files = e.target.files;
     const scanbtn = document.getElementById('scanbtn');
@@ -7,14 +55,15 @@ document.getElementById('imageinput').addEventListener('change', function(e) {
     if (files.length > 0) {
         scanbtn.classList.remove('hidden');
         filelist.classList.remove('hidden');
-        filelist.innerHTML = `Đã chọn ${files.length} ảnh. Hệ thống sẵn sàng phân tích.`;
+        filelist.innerHTML = `Đã chọn <strong>${files.length}</strong> ảnh. Hệ thống sẵn sàng phân tích.`;
     } else {
         scanbtn.classList.add('hidden');
         filelist.classList.add('hidden');
     }
 });
 
-let globalresults = []; // mảng lưu kết quả
+// Xử lý khi người dùng nhấn nút SCAN
+let globalresults = []; // Mảng lưu kết quả để xuất PDF
 
 document.getElementById('scanbtn').addEventListener('click', async () => {
     const fileinput = document.getElementById('imageinput');
@@ -22,7 +71,7 @@ document.getElementById('scanbtn').addEventListener('click', async () => {
     const files = fileinput.files;
 
     if (files.length === 0) {
-        alert("Vui lòng chọn ít nhất 1 ảnh x-quang");
+        alert("Vui lòng chọn ít nhất 1 ảnh X-quang");
         return;
     }
 
@@ -92,6 +141,7 @@ document.getElementById('scanbtn').addEventListener('click', async () => {
     }
 });
 
+// Xử lý khi người dùng nhấn nút TẢI BÁO CÁO CHI TIẾT
 async function downloadpdf(data) {
     requestpdf([data], `Bao_cao_${data.filename}.pdf`);
 }
@@ -118,6 +168,6 @@ async function requestpdf(resultsarray, outfilename) {
         a.click();
         window.URL.revokeObjectURL(url);
     } catch (error) {
-        alert("Lỗi khi tạo file pdf");
+        alert("Lỗi khi tạo file PDF");
     }
 }
